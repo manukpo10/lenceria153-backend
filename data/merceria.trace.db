@@ -1,0 +1,50 @@
+2026-05-02 22:28:55.930913Z jdbc[3]: exception
+java.sql.SQLClientInfoException: Client info name 'ApplicationName' not supported.
+	at org.h2.jdbc.JdbcConnection.setClientInfo(JdbcConnection.java:1624)
+	at com.intellij.database.remote.jdbc.impl.RemoteConnectionImpl.setClientInfo(RemoteConnectionImpl.java:478)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:351)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:166)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:543)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:744)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:623)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+2026-05-02 22:28:57.721217Z jdbc[3]: exception
+java.sql.SQLClientInfoException: Client info name 'ApplicationName' not supported.
+	at org.h2.jdbc.JdbcConnection.setClientInfo(JdbcConnection.java:1624)
+	at com.intellij.database.remote.jdbc.impl.RemoteConnectionImpl.setClientInfo(RemoteConnectionImpl.java:478)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:351)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:166)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:543)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:744)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:623)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+2026-05-02 23:50:54.125277-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Conversión de datos fallida, convirtiendo "'56ef9e73-4dfa-4538-867d-9b1960554886' (VENTAS_COPY_3_0: ""ID"" BIGINT NOT NULL)"
+Data conversion error converting "'56ef9e73-4dfa-4538-867d-9b1960554886' (VENTAS_COPY_3_0: ""ID"" BIGINT NOT NULL)"; SQL statement:
+INSERT INTO "PUBLIC"."VENTAS_COPY_3_0"("ID", "CREATED_AT", "DESCUENTO", "FECHA", "ITEMS", "MEDIO_PAGO", "SUBTOTAL", "TOTAL", "USER_ID", "USUARIO_NOMBRE") OVERRIDING SYSTEM VALUE SELECT "ID", "CREATED_AT", "DESCUENTO", "FECHA", "ITEMS", "MEDIO_PAGO", "SUBTOTAL", "TOTAL", "USER_ID", "USUARIO_NOMBRE" FROM "PUBLIC"."VENTAS" [22018-224]
+2026-05-02 23:50:55.654019-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Conversión de datos fallida, convirtiendo "79f3d7e3-2367-4535-ac8c-caecb79ea177"
+Data conversion error converting "79f3d7e3-2367-4535-ac8c-caecb79ea177" [22018-224]
+2026-05-02 23:50:55.701930-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Conversión de datos fallida, convirtiendo "79f3d7e3-2367-4535-ac8c-caecb79ea177"
+Data conversion error converting "79f3d7e3-2367-4535-ac8c-caecb79ea177" [22018-224]
+2026-05-02 23:51:01.797315-03:00 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLDataException: Conversión de datos fallida, convirtiendo "79f3d7e3-2367-4535-ac8c-caecb79ea177"
+Data conversion error converting "79f3d7e3-2367-4535-ac8c-caecb79ea177" [22018-224]
+2026-05-02 23:51:01.806471-03:00 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLDataException: Conversión de datos fallida, convirtiendo "79f3d7e3-2367-4535-ac8c-caecb79ea177"
+Data conversion error converting "79f3d7e3-2367-4535-ac8c-caecb79ea177" [22018-224]
+2026-05-02 23:51:03.318899-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Conversión de datos fallida, convirtiendo "79f3d7e3-2367-4535-ac8c-caecb79ea177"
+Data conversion error converting "79f3d7e3-2367-4535-ac8c-caecb79ea177" [22018-224]
+2026-05-02 23:51:03.327749-03:00 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLDataException: Conversión de datos fallida, convirtiendo "79f3d7e3-2367-4535-ac8c-caecb79ea177"
+Data conversion error converting "79f3d7e3-2367-4535-ac8c-caecb79ea177" [22018-224]
