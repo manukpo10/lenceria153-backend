@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: merceria-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    region: sao_paulo
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: postgres
+      - key: DB_USER
+        value: postgres
+      - key: DB_PASSWORD
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
