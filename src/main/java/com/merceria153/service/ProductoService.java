@@ -220,6 +220,13 @@ public class ProductoService {
     }
 
     @Transactional
+    public void incrementarStock(String productoId, int cantidad) {
+        Producto p = obtener(productoId);
+        p.setStock(p.getStock() + cantidad);
+        repo.save(p);
+    }
+
+    @Transactional
     public Map<String, Object> calcularPreciosVenta(BigDecimal porcentaje) {
         List<Producto> all = repo.findByActivoTrue();
         int actualizados = 0;

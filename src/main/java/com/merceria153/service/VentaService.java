@@ -21,13 +21,16 @@ public class VentaService {
     private final ProductoService productoSvc;
     private final MovimientoCajaRepository movRepo;
     private final CajaRepository cajaRepo;
+    private final CajaService cajaService;
 
     public VentaService(VentaRepository ventaRepo, ProductoService productoSvc,
-                        MovimientoCajaRepository movRepo, CajaRepository cajaRepo) {
+                        MovimientoCajaRepository movRepo, CajaRepository cajaRepo,
+                        CajaService cajaService) {
         this.ventaRepo = ventaRepo;
         this.productoSvc = productoSvc;
         this.movRepo = movRepo;
         this.cajaRepo = cajaRepo;
+        this.cajaService = cajaService;
     }
 
     public List<Venta> listar(LocalDate desde, LocalDate hasta, String medio) {
@@ -117,5 +120,29 @@ public class VentaService {
                 "totalHoy", totalHoy,
                 "itemsHoy", itemsHoy
         );
+    }
+
+    @Transactional
+    public void eliminar(String id) {
+        Venta venta = obtener(id);
+        // Revertir stock
+        for (Venta.VentaItem item : venta.getItems()) {
+            productoSvc.incrementarStock(item.getProductoId(), item.getCantidad());
+        }
+        // Eliminar movimiento de caja asociado si existe
+        List<MovimientoCaja> movs = movRepo.findByDescripcionContaining("Venta " + id);
+        if (!movs.isEmpty()) {
+            movRepo.deleteAll(movs);
+        }
+        ventaRepo.delete(venta);
+        // Si hay caja en pendiente_cierre, recalcular monto sistema
+        Optional<Caja> cajaPendiente = cajaRepo.findFirstByEstadoOrderByCreatedAtDesc("pendiente_cierre");
+        if (cajaPendiente.isPresent()) {
+            Caja caja = cajaPendiente.get();
+            BigDecimal montoSistema = cajaService.calcularMontoSistema(caja);
+            caja.setMontoSistema(montoSistema);
+            caja.setDiferencia(caja.getMontoRealTemporal().subtract(montoSistema));
+            cajaRepo.save(caja);
+        }
     }
 }

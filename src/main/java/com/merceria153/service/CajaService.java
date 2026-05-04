@@ -304,7 +304,7 @@ public class CajaService {
                 .sorted(Comparator.comparing(Caja::getCreatedAt).reversed()).toList();
     }
 
-    private BigDecimal calcularMontoSistema(Caja caja) {
+    public BigDecimal calcularMontoSistema(Caja caja) {
         List<MovimientoCaja> movs = movRepo.findByCajaIdOrderByCreatedAtDesc(caja.getId());
         BigDecimal monto = caja.getMontoApertura();
         for (MovimientoCaja m : movs) {

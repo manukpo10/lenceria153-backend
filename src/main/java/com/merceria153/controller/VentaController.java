@@ -42,4 +42,10 @@ public class VentaController {
     public ResponseEntity<Map<String, Object>> stats() {
         return ResponseEntity.ok(svc.stats());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable String id) {
+        svc.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
 }
