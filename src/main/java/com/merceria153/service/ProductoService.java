@@ -61,18 +61,19 @@ public class ProductoService {
     @Transactional
     public Producto actualizar(String id, Producto data) {
         Producto p = obtener(id);
-        System.out.println(">>> actualizar precioVenta incoming: " + data.getPrecioVenta());
-        p.setDescripcion(data.getDescripcion());
-        p.setRubro(data.getRubro());
+        if (data.getDescripcion() != null) p.setDescripcion(data.getDescripcion());
+        if (data.getRubro() != null) p.setRubro(data.getRubro());
         p.setCosto(data.getCosto());
-        p.setPrecio(data.getPrecio());
+        if (data.getPrecio() != null) p.setPrecio(data.getPrecio());
         p.setPrecioUnidad(data.getPrecioUnidad());
+        p.setPrecioUnidadLista(data.getPrecioUnidadLista());
+        p.setPrecioUnidadVenta(data.getPrecioUnidadVenta());
         p.setPrecioVenta(data.getPrecioVenta());
-        p.setPack(data.getPack());
-        p.setStock(data.getStock());
-        p.setActivo(data.getActivo());
+        if (data.getPack() != null) p.setPack(data.getPack());
+        if (data.getUnidad() != null) p.setUnidad(data.getUnidad());
+        if (data.getStock() != null) p.setStock(data.getStock());
+        if (data.getActivo() != null) p.setActivo(data.getActivo());
         p.setUpdatedAt(LocalDateTime.now());
-        System.out.println(">>> after set, precioVenta=" + p.getPrecioVenta());
         return repo.save(p);
     }
 
@@ -325,7 +326,8 @@ public class ProductoService {
                 if ("OTROS".equals(rubro)) rubro = rubroActual;
 
                 int pack = detectarPack(descripcion);
-                BigDecimal precioUnidad = precio.divide(BigDecimal.valueOf(pack), 2, java.math.RoundingMode.HALF_UP);
+                BigDecimal divisor = detectarDivisor(descripcion, pack);
+                BigDecimal precioUnidad = precio.divide(divisor, 2, java.math.RoundingMode.HALF_UP);
 
                 Map<String, Object> prod = new HashMap<>();
                 prod.put("codigo", codigo);
@@ -353,7 +355,8 @@ public class ProductoService {
                     if ("OTROS".equals(rubro)) rubro = rubroActual;
 
                     int pack = detectarPack(descripcion);
-                    BigDecimal precioUnidad = precio.divide(BigDecimal.valueOf(pack), 2, java.math.RoundingMode.HALF_UP);
+                    BigDecimal divisor = detectarDivisor(descripcion, pack);
+                    BigDecimal precioUnidad = precio.divide(divisor, 2, java.math.RoundingMode.HALF_UP);
 
                     Map<String, Object> prod = new HashMap<>();
                     prod.put("codigo", codigo);
@@ -409,7 +412,8 @@ public class ProductoService {
             if ("OTROS".equals(rubro)) rubro = rubroActual;
 
             int pack = detectarPack(descripcion);
-            BigDecimal precioUnidad = precio.divide(BigDecimal.valueOf(pack), 2, java.math.RoundingMode.HALF_UP);
+            BigDecimal divisor = detectarDivisor(descripcion, pack);
+            BigDecimal precioUnidad = precio.divide(divisor, 2, java.math.RoundingMode.HALF_UP);
 
             Map<String, Object> prod = new HashMap<>();
             prod.put("codigo", codigo);
@@ -500,22 +504,62 @@ public class ProductoService {
         return candidato;
     }
 
-    private int detectarPack(String desc) {
-        String d = desc.toUpperCase();
-        java.util.regex.Pattern xp = java.util.regex.Pattern.compile("(?:^|[^A-Z0-9])X\\s*(\\d{1,4})(?:\\s|$|\\b(?!(?:MT|MTS|METRO|CM|MM|UN|UNI|UNID|PIEZA|PAQUETE)))");
-        java.util.regex.Matcher m = xp.matcher(d);
-        java.util.List<Integer> candidatos = new java.util.ArrayList<>();
-        while (m.find()) {
-            candidatos.add(Integer.parseInt(m.group(1)));
+    private BigDecimal detectarDivisor(String desc, int packEntero) {
+        String d = desc.toUpperCase().trim();
+        java.util.regex.Matcher mMts = java.util.regex.Pattern.compile(
+            "(\\d{1,4})(?:[.,](\\d+))?\\s*(?:MTRS?|MTS?|METROS?)\\b").matcher(d);
+        BigDecimal divisor = null;
+        while (mMts.find()) {
+            String intPart = mMts.group(1);
+            String decPart = mMts.group(2);
+            try {
+                divisor = new BigDecimal(decPart != null ? intPart + "." + decPart : intPart);
+            } catch (NumberFormatException ignored) {}
         }
-        if (!candidatos.isEmpty()) return candidatos.get(candidatos.size() - 1);
+        if (divisor != null && divisor.signum() > 0) return divisor;
+        return BigDecimal.valueOf(packEntero);
+    }
 
-        java.util.regex.Matcher m2 = java.util.regex.Pattern.compile("(?:^|\\s)X\\s*(\\d{1,4})(?:\\s|$)").matcher(d);
-        if (m2.find()) {
-            int n = Integer.parseInt(m2.group(1));
-            return n > 0 && n <= 10000 ? n : 1;
+    private int detectarPack(String desc) {
+        String d = desc.toUpperCase().trim();
+
+        java.util.regex.Matcher mMts = java.util.regex.Pattern.compile(
+            "(\\d{1,4})(?:[.,]\\d+)?\\s*(?:MTRS?|MTS?|METROS?)\\b").matcher(d);
+        int metros = -1;
+        while (mMts.find()) {
+            int n = Integer.parseInt(mMts.group(1));
+            if (n > 0 && n <= 10000) metros = n;
         }
-        return 1;
+        if (metros > 0) return metros;
+
+        java.util.regex.Matcher mFin = java.util.regex.Pattern.compile("X\\s*(\\d{1,4})([A-Z]*)\\s*$").matcher(d);
+        if (mFin.find()) {
+            String sufijo = mFin.group(2);
+            if (sufijo.equals("G") || sufijo.equals("GR") || sufijo.equals("GRS")
+                    || sufijo.equals("KG") || sufijo.equals("KGS")) {
+                return 1;
+            }
+            int n = Integer.parseInt(mFin.group(1));
+            if (n > 0 && n <= 10000) return n;
+        }
+
+        java.util.regex.Pattern xPat = java.util.regex.Pattern.compile("(?:^|[^A-Z0-9])X\\s*(\\d{1,4})");
+        java.util.regex.Pattern countKw = java.util.regex.Pattern.compile(
+            "(UN|UNI|UNID|UNIDAD|UNIDADES|PIEZA|PIEZAS|PACK)\\b");
+        java.util.regex.Matcher m = xPat.matcher(d);
+        int ultimo = -1;
+        int prioritario = -1;
+        while (m.find()) {
+            int n = Integer.parseInt(m.group(1));
+            if (n <= 0 || n > 10000) continue;
+            ultimo = n;
+            String resto = d.substring(m.end()).stripLeading();
+            if (countKw.matcher(resto).lookingAt()) {
+                prioritario = n;
+            }
+        }
+        if (prioritario > 0) return prioritario;
+        return ultimo > 0 ? ultimo : 1;
     }
 
     private String inferirRubro(String desc) {
