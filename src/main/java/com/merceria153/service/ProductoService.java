@@ -32,7 +32,7 @@ public class ProductoService {
                 p.getDescripcion().toLowerCase().contains(term)
             ).toList();
         }
-        return all.stream().limit(100).toList();
+        return all.stream().limit(3000).toList();
     }
 
     public Producto obtener(String id) {
