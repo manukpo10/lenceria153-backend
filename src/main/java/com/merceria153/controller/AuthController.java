@@ -34,4 +34,9 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> seed() {
         return ResponseEntity.ok(Map.of("message", svc.seed()));
     }
+
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, String>> health() {
+        return ResponseEntity.ok(Map.of("status", "ok"));
+    }
 }
