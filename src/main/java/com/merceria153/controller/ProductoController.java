@@ -119,6 +119,14 @@ public class ProductoController {
         return ResponseEntity.ok(svc.calcularPreciosVenta(porcentaje));
     }
 
+    @PostMapping("/calcular-precio-venta/{id}")
+    public ResponseEntity<Map<String, Object>> calcularPrecioVenta(@PathVariable String id, @RequestBody Map<String, Object> body) {
+        Object pctObj = body.get("porcentaje");
+        if (pctObj == null) return ResponseEntity.badRequest().body(Map.of("error", "porcentaje requerido"));
+        BigDecimal porcentaje = new BigDecimal(pctObj.toString());
+        return ResponseEntity.ok(svc.calcularPrecioVenta(id, porcentaje));
+    }
+
     @PostMapping("/reset-stock")
     public ResponseEntity<Map<String, Object>> resetStock(@RequestBody Map<String, Object> body) {
         Object stockObj = body.get("stock");

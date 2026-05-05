@@ -246,6 +246,27 @@ public class ProductoService {
     }
 
     @Transactional
+    public Map<String, Object> calcularPrecioVenta(String productoId, BigDecimal porcentaje) {
+        Producto p = obtener(productoId);
+        if (p.getPrecio() == null || p.getPrecio().signum() <= 0) {
+            return Map.of("error", "El producto no tiene precio base definido");
+        }
+        BigDecimal venta = p.getPrecio().multiply(BigDecimal.ONE.add(porcentaje.divide(BigDecimal.valueOf(100))));
+        p.setPrecioVenta(venta);
+        int pack = p.getPack() != null && p.getPack() > 0 ? p.getPack() : 1;
+        p.setPrecioUnidadVenta(venta.divide(BigDecimal.valueOf(pack), 2, java.math.RoundingMode.HALF_UP));
+        p.setUpdatedAt(LocalDateTime.now());
+        repo.save(p);
+        return Map.of(
+            "actualizados", 1,
+            "productoId", productoId,
+            "precioVenta", venta,
+            "precioUnidadVenta", p.getPrecioUnidadVenta(),
+            "porcentaje", porcentaje
+        );
+    }
+
+    @Transactional
     public int seedDesdeJson(List<Map<String, Object>> productosJson) {
         List<Producto> productos = new ArrayList<>();
         for (Map<String, Object> p : productosJson) {
