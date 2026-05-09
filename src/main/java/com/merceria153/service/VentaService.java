@@ -58,12 +58,12 @@ public class VentaService {
 
         for (ItemRequest itemReq : req.getItems()) {
             Producto p = productoSvc.obtener(itemReq.getProductoId());
-            if (p.getStock() < itemReq.getCantidad()) {
+            if (p.getStock() < itemReq.getCantidad().intValue()) {
                 throw new RuntimeException("Stock insuficiente para " + p.getDescripcion() + ". Disponible: " + p.getStock());
             }
             BigDecimal precio = p.getPrecioUnidadVenta() != null ? p.getPrecioUnidadVenta()
                 : (p.getPrecioVenta() != null ? p.getPrecioVenta() : (p.getPrecioUnidad() != null ? p.getPrecioUnidad() : p.getPrecio()));
-            BigDecimal itemSubtotal = precio.multiply(BigDecimal.valueOf(itemReq.getCantidad()));
+            BigDecimal itemSubtotal = precio.multiply(itemReq.getCantidad());
             items.add(new Venta.VentaItem(p.getId(), p.getCodigo(), p.getDescripcion(),
                     itemReq.getCantidad(), precio, itemSubtotal));
             subtotal = subtotal.add(itemSubtotal);
@@ -87,7 +87,7 @@ public class VentaService {
 
         // decrementar stock
         for (ItemRequest itemReq : req.getItems()) {
-            productoSvc.decrementarStock(itemReq.getProductoId(), itemReq.getCantidad());
+            productoSvc.decrementarStock(itemReq.getProductoId(), itemReq.getCantidad().intValue());
         }
 
         // registrar movimiento en caja si es efectivo
@@ -112,8 +112,9 @@ public class VentaService {
         List<Venta> ventasHoy = ventaRepo.findByFechaGreaterThanEqualOrderByFechaDesc(hoy);
 
         BigDecimal totalHoy = ventasHoy.stream().map(Venta::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
-        int itemsHoy = ventasHoy.stream().mapToInt(v ->
-                v.getItems().stream().mapToInt(Venta.VentaItem::getCantidad).sum()).sum();
+        BigDecimal itemsHoy = ventasHoy.stream().map(v ->
+                v.getItems().stream().map(Venta.VentaItem::getCantidad).reduce(BigDecimal.ZERO, BigDecimal::add))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return Map.of(
                 "ventasHoy", ventasHoy.size(),
@@ -127,7 +128,7 @@ public class VentaService {
         Venta venta = obtener(id);
         // Revertir stock
         for (Venta.VentaItem item : venta.getItems()) {
-            productoSvc.incrementarStock(item.getProductoId(), item.getCantidad());
+            productoSvc.incrementarStock(item.getProductoId(), item.getCantidad().intValue());
         }
         // Eliminar movimiento de caja asociado si existe
         List<MovimientoCaja> movs = movRepo.findByDescripcionContaining("Venta " + id);

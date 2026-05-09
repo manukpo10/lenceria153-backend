@@ -163,8 +163,9 @@ public class CajaService {
                 "resumen", resumenData,
                 "ventasPorMedio", porMedio,
                 "cantidadVentas", ventas.size(),
-                "itemsVendidos", ventas.stream().mapToInt(v ->
-                        v.getItems().stream().mapToInt(Venta.VentaItem::getCantidad).sum()).sum()
+                "itemsVendidos", ventas.stream().map(v ->
+                        v.getItems().stream().map(Venta.VentaItem::getCantidad).reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
         );
     }
 
@@ -294,8 +295,9 @@ public class CajaService {
                 "resumen", Map.of("apertura", apertura, "ventas", ventasTotal, "ingresos", ingresos, "retiros", retiros),
                 "ventasPorMedio", porMedio,
                 "cantidadVentas", ventas.size(),
-                "itemsVendidos", ventas.stream().mapToInt(v ->
-                        v.getItems().stream().mapToInt(Venta.VentaItem::getCantidad).sum()).sum()
+                "itemsVendidos", ventas.stream().map(v ->
+                        v.getItems().stream().map(Venta.VentaItem::getCantidad).reduce(BigDecimal.ZERO, BigDecimal::add))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
         );
     }
 

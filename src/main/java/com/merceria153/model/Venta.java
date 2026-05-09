@@ -53,7 +53,7 @@ public class Venta {
         private String productoId;
         private String codigo;
         private String descripcion;
-        private Integer cantidad;
+        private BigDecimal cantidad;
         private BigDecimal precio;
         private BigDecimal subtotal;
     }
