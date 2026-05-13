@@ -28,7 +28,7 @@ public class ProductoService {
         if (q != null && !q.isBlank()) {
             String term = q.toLowerCase();
             all = all.stream().filter(p ->
-                p.getCodigo().contains(term) ||
+                p.getCodigo().toLowerCase().contains(term) ||
                 p.getDescripcion().toLowerCase().contains(term)
             ).toList();
         }
